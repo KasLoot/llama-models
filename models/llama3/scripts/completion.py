@@ -7,7 +7,10 @@
 
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 # This software may be used and distributed in accordance with the terms of the Llama 3 Community License Agreement.
-
+import os
+import torch
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 from io import BytesIO
 from pathlib import Path
 from typing import Optional
@@ -18,8 +21,14 @@ from termcolor import cprint
 from models.datatypes import RawMediaItem
 from models.llama3.generation import Llama3
 
-import os
-import torch
+if "RANK" not in os.environ:
+    os.environ["RANK"] = "0"
+if "WORLD_SIZE" not in os.environ:
+    os.environ["WORLD_SIZE"] = "1"
+if "MASTER_ADDR" not in os.environ:
+    os.environ["MASTER_ADDR"] = "localhost"
+if "MASTER_PORT" not in os.environ:
+    os.environ["MASTER_PORT"] = "12355"
 
 
 THIS_DIR = Path(__file__).parent

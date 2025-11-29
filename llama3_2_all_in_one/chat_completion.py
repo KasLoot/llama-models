@@ -17,10 +17,9 @@ from termcolor import cprint
 
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
-from models.datatypes import RawMediaItem, RawMessage, RawTextItem, StopReason
-from models.llama3.generation import Llama3
+from datatypes import RawMediaItem, RawMessage, RawTextItem, StopReason
+from generation import Llama3
 
 import os
 import torch
@@ -39,7 +38,7 @@ def get_device():
 
 
 def run_main(
-    ckpt_dir: str,
+    ckpt_dir: str = "/media/yuxin/LinuxSD/models/Llama-3.2-1B-Instruct/original",
     temperature: float = 0.8,
     top_p: float = 0.9,
     max_seq_len: int = 512,
@@ -96,20 +95,25 @@ These are just a few of the many attractions that Paris has to offer. With so mu
         ],
     ]
     if generator.args.vision_chunk_size > 0:
-        with open(THIS_DIR / "../../resources/dog.jpg", "rb") as f:
-            img = f.read()
+        # Check if image exists, otherwise skip or use a placeholder
+        img_path = THIS_DIR / "../../resources/dog.jpg"
+        if img_path.exists():
+            with open(img_path, "rb") as f:
+                img = f.read()
 
-        dialogs.append(
-            [
-                RawMessage(
-                    role="user",
-                    content=[
-                        RawMediaItem(data=BytesIO(img)),
-                        RawTextItem(text="Describe this image in two sentences"),
-                    ],
-                ),
-            ]
-        )
+            dialogs.append(
+                [
+                    RawMessage(
+                        role="user",
+                        content=[
+                            RawMediaItem(data=BytesIO(img)),
+                            RawTextItem(text="Describe this image in two sentences"),
+                        ],
+                    ),
+                ]
+            )
+        else:
+            print(f"Image not found at {img_path}, skipping vision example.")
 
     print("\n\n==== Starting Chat Completion ====\n")
     for dialog in dialogs:
